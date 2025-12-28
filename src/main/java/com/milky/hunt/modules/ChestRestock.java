@@ -222,19 +222,28 @@ public class ChestRestock extends Module {
 
     private int countInInventory(Item item) {
         int total = 0;
-        for (ItemStack st : mc.player.getInventory().main) {
-            if (!st.isEmpty() && st.getItem() == item) total += st.getCount();
+        // 核心修复：替换 mc.player.getInventory().main 为直接遍历 PlayerInventory（利用iterator()方法）
+        // 该方式等价于遍历主物品栏（main），无需访问私有字段
+        for (ItemStack st : mc.player.getInventory()) {
+            if (!st.isEmpty() && st.getItem() == item) {
+                total += st.getCount();
+            }
         }
+        // 原逻辑：单独统计副手栏，保留不变（避免重复统计）
         ItemStack off = mc.player.getOffHandStack();
-        if (!off.isEmpty() && off.getItem() == item) total += off.getCount();
+        if (!off.isEmpty() && off.getItem() == item) {
+            total += off.getCount();
+        }
         return total;
     }
 
     private boolean hasSpaceFor(Item item) {
         int max = new ItemStack(item).getMaxCount();
-        for (ItemStack st : mc.player.getInventory().main) {
-            if (st.isEmpty()) return true;
-            if (st.getItem() == item && st.getCount() < max) return true;
+        // 核心修复：替换 mc.player.getInventory().main 为直接遍历 PlayerInventory
+        // 利用公开的 iterator() 方法，无需访问私有字段，逻辑与原代码一致
+        for (ItemStack st : mc.player.getInventory()) {
+            if (st.isEmpty()) return true; // 存在空槽位，有存储空间
+            if (st.getItem() == item && st.getCount() < max) return true; // 对应物品槽位未填满
         }
         ItemStack off = mc.player.getOffHandStack();
         return off.isEmpty() || (off.getItem() == item && off.getCount() < max);

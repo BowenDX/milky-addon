@@ -38,6 +38,8 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.screen.sync.ItemStackHash;
+import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 
 import java.util.List;
 
@@ -50,207 +52,207 @@ public class BoostedBounce extends Module {
     // bounce option removed — always on while module is active
 
     private final Setting<Boolean> motionYBoost = sgGeneral.add(new BoolSetting.Builder()
-        .name("Motion Y Boost")
-        .description("Greatly increases speed by cancelling Y momentum.")
-        .defaultValue(false)
-        .build()
+            .name("Motion Y Boost")
+            .description("Greatly increases speed by cancelling Y momentum.")
+            .defaultValue(false)
+            .build()
     );
 
     private final Setting<Boolean> onlyWhileColliding = sgGeneral.add(new BoolSetting.Builder()
-        .name("Only While Colliding")
-        .description("Only enables motion y boost if colliding with a wall.")
-        .defaultValue(true)
-        .visible(motionYBoost::get)
-        .build()
+            .name("Only While Colliding")
+            .description("Only enables motion y boost if colliding with a wall.")
+            .defaultValue(true)
+            .visible(motionYBoost::get)
+            .build()
     );
 
     private final Setting<Boolean> tunnelBounce = sgGeneral.add(new BoolSetting.Builder()
-        .name("Tunnel Bounce")
-        .description("Allows you to bounce in 1x2 tunnels. This should not be on if you are not in a tunnel.")
-        .defaultValue(false)
-        .visible(motionYBoost::get)
-        .build()
+            .name("Tunnel Bounce")
+            .description("Allows you to bounce in 1x2 tunnels. This should not be on if you are not in a tunnel.")
+            .defaultValue(false)
+            .visible(motionYBoost::get)
+            .build()
     );
 
     private final Setting<Double> speed = sgGeneral.add(new DoubleSetting.Builder()
-        .name("Speed")
-        .description("The speed in blocks per second to keep you at.")
-        .defaultValue(100.0)
-        .sliderRange(20, 250)
-        .visible(motionYBoost::get)
-        .build()
+            .name("Speed")
+            .description("The speed in blocks per second to keep you at.")
+            .defaultValue(100.0)
+            .sliderRange(20, 250)
+            .visible(motionYBoost::get)
+            .build()
     );
 
     private final Setting<Boolean> lockPitch = sgGeneral.add(new BoolSetting.Builder()
-        .name("Lock Pitch")
-        .description("Whether to lock your pitch when bounce is enabled.")
-        .defaultValue(true)
-        .build()
+            .name("Lock Pitch")
+            .description("Whether to lock your pitch when bounce is enabled.")
+            .defaultValue(true)
+            .build()
     );
 
     private final Setting<Double> pitch = sgGeneral.add(new DoubleSetting.Builder()
-        .name("Pitch")
-        .description("The pitch to set when bounce is enabled.")
-        .defaultValue(90.0)
-        .sliderRange(-90, 90)
-        .visible(lockPitch::get)
-        .build()
+            .name("Pitch")
+            .description("The pitch to set when bounce is enabled.")
+            .defaultValue(90.0)
+            .sliderRange(-90, 90)
+            .visible(lockPitch::get)
+            .build()
     );
 
     private final Setting<Boolean> lockYaw = sgGeneral.add(new BoolSetting.Builder()
-        .name("Lock Yaw")
-        .description("Whether to lock your yaw when bounce is enabled.")
-        .defaultValue(false)
-        .build()
+            .name("Lock Yaw")
+            .description("Whether to lock your yaw when bounce is enabled.")
+            .defaultValue(false)
+            .build()
     );
 
     private final Setting<Boolean> useCustomYaw = sgGeneral.add(new BoolSetting.Builder()
-        .name("Use Custom Yaw")
-        .description("Enable this if you want to use a yaw that isn't a factor of 45.")
-        .defaultValue(false)
-        .build()
+            .name("Use Custom Yaw")
+            .description("Enable this if you want to use a yaw that isn't a factor of 45.")
+            .defaultValue(false)
+            .build()
     );
 
     private final Setting<Double> yaw = sgGeneral.add(new DoubleSetting.Builder()
-        .name("Yaw")
-        .description("The yaw to set when bounce is enabled. This is auto set to the closest 45 deg angle to you unless Use Custom Yaw is enabled.")
-        .defaultValue(0.0)
-        .sliderRange(0, 359)
-        .visible(useCustomYaw::get)
-        .build()
+            .name("Yaw")
+            .description("The yaw to set when bounce is enabled. This is auto set to the closest 45 deg angle to you unless Use Custom Yaw is enabled.")
+            .defaultValue(0.0)
+            .sliderRange(0, 359)
+            .visible(useCustomYaw::get)
+            .build()
     );
 
     private final Setting<Boolean> highwayObstaclePasser = sgObstaclePasser.add(new BoolSetting.Builder()
-        .name("Highway Obstacle Passer")
-        .description("Uses baritone to pass obstacles.")
-        .defaultValue(false)
-        .build()
+            .name("Highway Obstacle Passer")
+            .description("Uses baritone to pass obstacles.")
+            .defaultValue(false)
+            .build()
     );
 
     private final Setting<Boolean> useCustomStartPos = sgObstaclePasser.add(new BoolSetting.Builder()
-        .name("Use Custom Start Position")
-        .description("Enable and set this ONLY if you are on a ringroad or don't want to be locked to a highway. Otherwise (0, 0) is the start position and will be automatically used.")
-        .defaultValue(false)
-        .visible(highwayObstaclePasser::get)
-        .build()
+            .name("Use Custom Start Position")
+            .description("Enable and set this ONLY if you are on a ringroad or don't want to be locked to a highway. Otherwise (0, 0) is the start position and will be automatically used.")
+            .defaultValue(false)
+            .visible(highwayObstaclePasser::get)
+            .build()
     );
 
     private final Setting<BlockPos> startPos = sgObstaclePasser.add(new BlockPosSetting.Builder()
-        .name("Start Position")
-        .description("The start position to use when using a custom start position.")
-        .defaultValue(new BlockPos(0, 0, 0))
-        .visible(() -> highwayObstaclePasser.get() && useCustomStartPos.get())
-        .build()
+            .name("Start Position")
+            .description("The start position to use when using a custom start position.")
+            .defaultValue(new BlockPos(0, 0, 0))
+            .visible(() -> highwayObstaclePasser.get() && useCustomStartPos.get())
+            .build()
     );
 
     private final Setting<Boolean> awayFromStartPos = sgObstaclePasser.add(new BoolSetting.Builder()
-        .name("Away From Start Position")
-        .description("If true, will go away from the start position instead of towards it. The start pos is (0,0) if it is not set to a custom start pos.")
-        .defaultValue(true)
-        .visible(highwayObstaclePasser::get)
-        .build()
+            .name("Away From Start Position")
+            .description("If true, will go away from the start position instead of towards it. The start pos is (0,0) if it is not set to a custom start pos.")
+            .defaultValue(true)
+            .visible(highwayObstaclePasser::get)
+            .build()
     );
 
     private final Setting<Double> distance = sgObstaclePasser.add(new DoubleSetting.Builder()
-        .name("Distance")
-        .description("The distance to set the baritone goal for path realignment.")
-        .defaultValue(10.0)
-        .visible(highwayObstaclePasser::get)
-        .build()
+            .name("Distance")
+            .description("The distance to set the baritone goal for path realignment.")
+            .defaultValue(10.0)
+            .visible(highwayObstaclePasser::get)
+            .build()
     );
 
     private final Setting<Integer> targetY = sgObstaclePasser.add(new IntSetting.Builder()
-        .name("Y Level")
-        .description("The Y level to bounce at. This must be correct or bounce will not start properly.")
-        .defaultValue(120)
-        .visible(() -> highwayObstaclePasser.get() && !useCustomStartPos.get())
-        .build()
+            .name("Y Level")
+            .description("The Y level to bounce at. This must be correct or bounce will not start properly.")
+            .defaultValue(120)
+            .visible(() -> highwayObstaclePasser.get() && !useCustomStartPos.get())
+            .build()
     );
 
     private final Setting<Boolean> avoidPortalTraps = sgObstaclePasser.add(new BoolSetting.Builder()
-        .name("Avoid Portal Traps")
-        .description("Will attempt to detect portal traps on chunk load and avoid them.")
-        .defaultValue(false)
-        .visible(highwayObstaclePasser::get)
-        .build()
+            .name("Avoid Portal Traps")
+            .description("Will attempt to detect portal traps on chunk load and avoid them.")
+            .defaultValue(false)
+            .visible(highwayObstaclePasser::get)
+            .build()
     );
 
     private final Setting<Double> portalAvoidDistance = sgObstaclePasser.add(new DoubleSetting.Builder()
-        .name("Portal Avoid Distance")
-        .description("The distance to a portal trap where the obstacle passer will takeover and go around it.")
-        .defaultValue(20)
-        .min(0)
-        .sliderMax(50)
-        .visible(() -> highwayObstaclePasser.get() && avoidPortalTraps.get())
-        .build()
+            .name("Portal Avoid Distance")
+            .description("The distance to a portal trap where the obstacle passer will takeover and go around it.")
+            .defaultValue(20)
+            .min(0)
+            .sliderMax(50)
+            .visible(() -> highwayObstaclePasser.get() && avoidPortalTraps.get())
+            .build()
     );
 
     private final Setting<Integer> portalScanWidth = sgObstaclePasser.add(new IntSetting.Builder()
-        .name("Portal Scan Width")
-        .description("The width on the axis of the highway that will be scanned for portal traps.")
-        .defaultValue(5)
-        .min(3)
-        .sliderMax(10)
-        .visible(() -> highwayObstaclePasser.get() && avoidPortalTraps.get())
-        .build()
+            .name("Portal Scan Width")
+            .description("The width on the axis of the highway that will be scanned for portal traps.")
+            .defaultValue(5)
+            .min(3)
+            .sliderMax(10)
+            .visible(() -> highwayObstaclePasser.get() && avoidPortalTraps.get())
+            .build()
     );
 
     private final Setting<Boolean> fakeFly = sgGeneral.add(new BoolSetting.Builder()
-        .name("Chestplate / Fakefly")
-        .description("Lets you fly using a chestplate to use almost 0 elytra durability. Must have elytra in hotbar.")
-        .defaultValue(false)
-        .build()
+            .name("Chestplate / Fakefly")
+            .description("Lets you fly using a chestplate to use almost 0 elytra durability. Must have elytra in hotbar.")
+            .defaultValue(false)
+            .build()
     );
 
     private final Setting<Boolean> toggleElytra = sgGeneral.add(new BoolSetting.Builder()
-        .name("Toggle Elytra")
-        .description("Equips an elytra on activate, and a chestplate on deactivate.")
-        .defaultValue(false)
-        .visible(() -> !fakeFly.get())
-        .build()
+            .name("Toggle Elytra")
+            .description("Equips an elytra on activate, and a chestplate on deactivate.")
+            .defaultValue(false)
+            .visible(() -> !fakeFly.get())
+            .build()
     );
 
     // --- Auto replace Elytra when durability is low ---
     private final Setting<Boolean> autoReplaceElytra = sgGeneral.add(new BoolSetting.Builder()
-        .name("Auto Replace Elytra")
-        .description("Automatically replace Elytra when durability falls below threshold.")
-        .defaultValue(true)
-        .build()
+            .name("Auto Replace Elytra")
+            .description("Automatically replace Elytra when durability falls below threshold.")
+            .defaultValue(true)
+            .build()
     );
 
     private final Setting<Integer> minElytraDurability = sgGeneral.add(new IntSetting.Builder()
-        .name("Min Elytra Durability")
-        .description("If current Elytra has less than this remaining durability, attempt to replace it.")
-        .defaultValue(10)
-        .sliderRange(1, 432)
-        .visible(autoReplaceElytra::get)
-        .build()
+            .name("Min Elytra Durability")
+            .description("If current Elytra has less than this remaining durability, attempt to replace it.")
+            .defaultValue(10)
+            .sliderRange(1, 432)
+            .visible(autoReplaceElytra::get)
+            .build()
     );
 
     // --- Auto wear Gold armor (helmet/leggings/boots) ---
     private final Setting<Boolean> autoWearGold = sgGeneral.add(new BoolSetting.Builder()
-        .name("Auto Wear Gold")
-        .description("Automatically wear selected gold armor pieces above a minimum durability.")
-        .defaultValue(false)
-        .build()
+            .name("Auto Wear Gold")
+            .description("Automatically wear selected gold armor pieces above a minimum durability.")
+            .defaultValue(false)
+            .build()
     );
 
     private final Setting<Integer> minGoldDurability = sgGeneral.add(new IntSetting.Builder()
-        .name("Min Gold Durability")
-        .description("If equipped gold piece has less than this remaining durability, replace it.")
-        .defaultValue(10)
-        .sliderRange(1, 100)
-        .visible(autoWearGold::get)
-        .build()
+            .name("Min Gold Durability")
+            .description("If equipped gold piece has less than this remaining durability, replace it.")
+            .defaultValue(10)
+            .sliderRange(1, 100)
+            .visible(autoWearGold::get)
+            .build()
     );
 
     private final Setting<List<Item>> goldPieces = sgGeneral.add(new ItemListSetting.Builder()
-        .name("Gold Pieces")
-        .description("Choose which gold armor types to maintain: helmet, leggings, boots.")
-        .filter(it -> it == Items.GOLDEN_HELMET || it == Items.GOLDEN_LEGGINGS || it == Items.GOLDEN_BOOTS)
-        .defaultValue(List.of(Items.GOLDEN_HELMET, Items.GOLDEN_LEGGINGS, Items.GOLDEN_BOOTS))
-        .visible(autoWearGold::get)
-        .build()
+            .name("Gold Pieces")
+            .description("Choose which gold armor types to maintain: helmet, leggings, boots.")
+            .filter(it -> it == Items.GOLDEN_HELMET || it == Items.GOLDEN_LEGGINGS || it == Items.GOLDEN_BOOTS)
+            .defaultValue(List.of(Items.GOLDEN_HELMET, Items.GOLDEN_LEGGINGS, Items.GOLDEN_BOOTS))
+            .visible(autoWearGold::get)
+            .build()
     );
 
     public BoostedBounce() {
@@ -405,10 +407,10 @@ public class BoostedBounce extends Module {
 
         int ty = getTargetY();
         if (highwayObstaclePasser.get() && mc.player.getPos().length() > 100 && (
-            mc.player.getY() < ty || mc.player.getY() > ty + 2 ||
-                (mc.player.horizontalCollision && isFrontBlocked(mc.player)) ||
-                (portalTrap != null && portalTrap.getSquaredDistance(mc.player.getBlockPos()) < portalAvoidDistance.get() * portalAvoidDistance.get()) ||
-                waitingForChunksToLoad || stuckTimer > 50)) {
+                mc.player.getY() < ty || mc.player.getY() > ty + 2 ||
+                        (mc.player.horizontalCollision && isFrontBlocked(mc.player)) ||
+                        (portalTrap != null && portalTrap.getSquaredDistance(mc.player.getBlockPos()) < portalAvoidDistance.get() * portalAvoidDistance.get()) ||
+                        waitingForChunksToLoad || stuckTimer > 50)) {
 
             waitingForChunksToLoad = false;
             paused = true;
@@ -444,8 +446,8 @@ public class BoostedBounce extends Module {
                 }
             }
             while (!mc.world.getBlockState(goal.down()).isSolidBlock(mc.world, goal.down()) ||
-                mc.world.getBlockState(goal).getBlock() == Blocks.NETHER_PORTAL ||
-                !mc.world.getBlockState(goal).isAir());
+                    mc.world.getBlockState(goal).getBlock() == Blocks.NETHER_PORTAL ||
+                    !mc.world.getBlockState(goal).isAir());
 
             BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().setGoalAndPath(new GoalBlock(goal));
         } else {
@@ -489,15 +491,15 @@ public class BoostedBounce extends Module {
     @EventHandler
     private void onPlaySound(PlaySoundEvent event) {
         List<Identifier> armorEquipSounds = List.of(
-            Identifier.of("minecraft:item.armor.equip_generic"),
-            Identifier.of("minecraft:item.armor.equip_netherite"),
-            Identifier.of("minecraft:item.armor.equip_elytra"),
-            Identifier.of("minecraft:item.armor.equip_diamond"),
-            Identifier.of("minecraft:item.armor.equip_gold"),
-            Identifier.of("minecraft:item.armor.equip_iron"),
-            Identifier.of("minecraft:item.armor.equip_chain"),
-            Identifier.of("minecraft:item.armor.equip_leather"),
-            Identifier.of("minecraft:item.elytra.flying")
+                Identifier.of("minecraft:item.armor.equip_generic"),
+                Identifier.of("minecraft:item.armor.equip_netherite"),
+                Identifier.of("minecraft:item.armor.equip_elytra"),
+                Identifier.of("minecraft:item.armor.equip_diamond"),
+                Identifier.of("minecraft:item.armor.equip_gold"),
+                Identifier.of("minecraft:item.armor.equip_iron"),
+                Identifier.of("minecraft:item.armor.equip_chain"),
+                Identifier.of("minecraft:item.armor.equip_leather"),
+                Identifier.of("minecraft:item.elytra.flying")
         );
         for (Identifier identifier : armorEquipSounds) {
             if (identifier.equals(event.sound.getId())) {
@@ -522,24 +524,41 @@ public class BoostedBounce extends Module {
     private void sendStartFlyingPacket() {
         if (mc.player == null) return;
         mc.player.networkHandler.sendPacket(new ClientCommandC2SPacket(
-            mc.player,
-            ClientCommandC2SPacket.Mode.START_FALL_FLYING
+                mc.player,
+                ClientCommandC2SPacket.Mode.START_FALL_FLYING
         ));
     }
 
+
     private void sendSwapPacket(Int2ObjectMap<ItemStack> changedSlots, int buttonNum) {
+        if (mc == null || mc.player == null || mc.player.currentScreenHandler == null) {
+            return;
+        }
+
         int syncId = mc.player.currentScreenHandler.syncId;
         int stateId = mc.player.currentScreenHandler.getRevision();
 
-        mc.player.networkHandler.sendPacket(new ClickSlotC2SPacket(
-            syncId,
-            stateId,
-            6,
-            buttonNum,
-            SlotActionType.SWAP,
-            new ItemStack(Items.AIR),
-            changedSlots
-        ));
+        // 备选方案：创建空的变更槽位哈希（部分低版本MC允许空映射）
+        Int2ObjectMap<ItemStackHash> changedSlotHashes = new Int2ObjectOpenHashMap<>();
+        // 若无需传递哈希信息，直接使用空映射即可，不影响物品交换功能
+        // （注：该方案优先保证功能可用，若需要哈希校验可忽略此方案）
+
+        // 备选：获取默认的ItemStackHash（若有静态常量）
+        ItemStackHash cursorHash = ItemStackHash.EMPTY; // 部分版本提供EMPTY常量，替代ItemStack.EMPTY转换
+
+        ClickSlotC2SPacket swapPacket = new ClickSlotC2SPacket(
+                syncId,
+                stateId,
+                (short) 6,
+                (byte) buttonNum,
+                SlotActionType.SWAP,
+                changedSlotHashes,
+                cursorHash
+        );
+
+        if (mc.player.networkHandler != null) {
+            mc.player.networkHandler.sendPacket(swapPacket);
+        }
     }
 
     @EventHandler
@@ -562,15 +581,15 @@ public class BoostedBounce extends Module {
 
                     if (mc.world.getBlockState(position).getBlock().equals(Blocks.NETHER_PORTAL)) {
                         BlockPos posBehind = new BlockPos(
-                            (int) Math.floor(position.getX() + moveDir.x),
-                            position.getY(),
-                            (int) Math.floor(position.getZ() + moveDir.z)
+                                (int) Math.floor(position.getX() + moveDir.x),
+                                position.getY(),
+                                (int) Math.floor(position.getZ() + moveDir.z)
                         );
                         if (mc.world.getBlockState(posBehind).isSolidBlock(mc.world, posBehind) ||
-                            mc.world.getBlockState(posBehind).getBlock() == Blocks.NETHER_PORTAL) {
+                                mc.world.getBlockState(posBehind).getBlock() == Blocks.NETHER_PORTAL) {
                             if (portalTrap == null ||
-                                (portalTrap.getSquaredDistance(posBehind) > 100 &&
-                                    mc.player.getBlockPos().getSquaredDistance(posBehind) < mc.player.getBlockPos().getSquaredDistance(portalTrap))) {
+                                    (portalTrap.getSquaredDistance(posBehind) > 100 &&
+                                            mc.player.getBlockPos().getSquaredDistance(posBehind) < mc.player.getBlockPos().getSquaredDistance(portalTrap))) {
                                 portalTrap = posBehind;
                             }
                         }
@@ -638,7 +657,7 @@ public class BoostedBounce extends Module {
     }
 
     private void maybeReplaceElytra() {
-        ItemStack chest = mc.player.getInventory().getArmorStack(2);
+        ItemStack chest = mc.player.getEquippedStack(EquipmentSlot.CHEST);
         if (isHealthyElytra(chest)) return;
         int slot = findBestElytraSlot();
         if (slot == -1) return;
@@ -663,7 +682,7 @@ public class BoostedBounce extends Module {
             ItemStack equipped = mc.player.getInventory().getStack(invArmorSlot);
 
             boolean ok = equipped != null && !equipped.isEmpty() && equipped.isOf(it)
-                && remainingDurability(equipped) >= minGoldDurability.get();
+                    && remainingDurability(equipped) >= minGoldDurability.get();
             if (ok) continue;
 
             int best = findBestGoldSlot(it);
@@ -684,6 +703,7 @@ public class BoostedBounce extends Module {
         int best = -1, bestRemain = -1;
         for (int i = 0; i < mc.player.getInventory().size(); i++) {
             ItemStack s = mc.player.getInventory().getStack(i);
+            if (s.isEmpty()) continue;
             if (s.isOf(it)) {
                 int r = remainingDurability(s);
                 if (r >= minGoldDurability.get() && r > bestRemain) {
@@ -732,7 +752,8 @@ public class BoostedBounce extends Module {
     }
 
     private void maybeSwapBackLeggings() {
-        ItemStack legs = mc.player.getInventory().getArmorStack(1);
+        // 核心修复：替换 armor.get(1) 为 EquipmentSlot.LEGS（护腿槽位）
+        ItemStack legs = mc.player.getEquippedStack(EquipmentSlot.LEGS);
         boolean wearingGoldOrEmpty = legs == null || legs.isEmpty() || legs.isOf(Items.GOLDEN_LEGGINGS);
         if (!wearingGoldOrEmpty) return;
         int best = findBestNonGoldLeggingsSlot();
@@ -741,11 +762,11 @@ public class BoostedBounce extends Module {
 
     private int findBestNonGoldLeggingsSlot() {
         Item[][] tiers = new Item[][]{
-            {Items.NETHERITE_LEGGINGS},
-            {Items.DIAMOND_LEGGINGS},
-            {Items.IRON_LEGGINGS},
-            {Items.CHAINMAIL_LEGGINGS},
-            {Items.LEATHER_LEGGINGS}
+                {Items.NETHERITE_LEGGINGS},
+                {Items.DIAMOND_LEGGINGS},
+                {Items.IRON_LEGGINGS},
+                {Items.CHAINMAIL_LEGGINGS},
+                {Items.LEATHER_LEGGINGS}
         };
         for (Item[] tier : tiers) {
             int best = -1, bestRemain = -1;

@@ -49,7 +49,7 @@ public class Landing extends Module {
     private boolean attemptedThisEnable = false;
 
     public Landing() {
-        super(Addon.CATEGORY, "landing", "Keeps eating chorus fruit until you land on the ground.");
+        super(Addon.MilkyModCategory, "landing", "Keeps eating chorus fruit until you land on the ground.");
     }
 
     @Override
@@ -124,7 +124,7 @@ public class Landing extends Module {
         }
         FindItemResult found = InvUtils.find(Items.CHORUS_FRUIT);
         if (found.found()) {
-            int selected = mc.player.getInventory().selectedSlot;
+            int selected = mc.player.getInventory().getSelectedSlot();
             InvUtils.move().from(found.slot()).toHotbar(selected);
             return selected;
         }
@@ -132,7 +132,7 @@ public class Landing extends Module {
     }
 
     private void startEating(int chorusSlot) {
-        prevSlot = mc.player.getInventory().selectedSlot;
+        prevSlot = mc.player.getInventory().getSelectedSlot();
         changeSlot(chorusSlot);
 
         wasBaritone = false;
@@ -170,7 +170,7 @@ public class Landing extends Module {
 
     private void changeSlot(int newSlot) {
         if (newSlot < 0) return;
-        if (mc.player.getInventory().selectedSlot != newSlot) {
+        if (mc.player.getInventory().getSelectedSlot() != newSlot) {
             InvUtils.swap(newSlot, false);
         }
         slot = newSlot;

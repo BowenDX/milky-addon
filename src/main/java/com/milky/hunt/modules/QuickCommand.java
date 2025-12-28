@@ -9,6 +9,7 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket;
 import net.minecraft.util.math.BlockPos;
@@ -109,10 +110,10 @@ public class QuickCommand extends Module {
         ItemStack mainHand = mc.player.getMainHandStack();
         ItemStack offHand = mc.player.getOffHandStack();
 
-        ItemStack helmet = mc.player.getInventory().armor.get(3);
-        ItemStack chest = mc.player.getInventory().armor.get(2);
-        ItemStack legs = mc.player.getInventory().armor.get(1);
-        ItemStack boots = mc.player.getInventory().armor.get(0);
+        ItemStack helmet = mc.player.getEquippedStack(EquipmentSlot.HEAD);
+        ItemStack chest = mc.player.getEquippedStack(EquipmentSlot.CHEST);;
+        ItemStack legs = mc.player.getEquippedStack(EquipmentSlot.LEGS);    // 护腿（对应原 armor.get(1)）
+        ItemStack boots = mc.player.getEquippedStack(EquipmentSlot.FEET);   // 靴子（对应原 armor.get(0)）
 
         BlockPos posUnder = mc.player.getBlockPos().down();
         Block blockUnder = mc.world.getBlockState(posUnder).getBlock();
@@ -153,7 +154,7 @@ public class QuickCommand extends Module {
             .replace("{OnGround}", String.valueOf(onGround))
             .replace("{Air}", String.valueOf(air))
             .replace("{FireTicks}", String.valueOf(fireTicks))
-            .replace("{SelectedSlot}", String.valueOf(mc.player.getInventory().selectedSlot))
+            .replace("{SelectedSlot}", String.valueOf(mc.player.getInventory().getSelectedSlot()))
             .replace("{BlockUnder}", blockUnder.getName().getString())
             .replace("{Biome}", biome)
             .replace("{LightLevel}", String.valueOf(light))

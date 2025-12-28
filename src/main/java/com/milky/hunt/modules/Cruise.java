@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.util.Hand;
+import net.minecraft.entity.EquipmentSlot;
 
 import static com.milky.hunt.Utils.firework;
 
@@ -347,7 +348,11 @@ public class Cruise extends Module {
     }
 
     private boolean hasEligibleElytraAvailable() {
-        ItemStack chest = mc.player.getInventory().getArmorStack(2);
+        // 增加非空判断，防止运行时空指针异常
+        if (mc.player == null) {
+            return false;
+        }
+        ItemStack chest = mc.player.getEquippedStack(EquipmentSlot.CHEST);
         if (isHealthyElytra(chest)) return true;
         return findBestElytraSlot() != -1;
     }
@@ -376,7 +381,7 @@ public class Cruise extends Module {
     }
 
     private void maybeReplaceElytra() {
-        ItemStack chest = mc.player.getInventory().getArmorStack(2);
+        ItemStack chest = mc.player.getEquippedStack(EquipmentSlot.CHEST);
         if (isHealthyElytra(chest)) return;
 
         int slot = findBestElytraSlot();
