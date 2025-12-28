@@ -1,5 +1,7 @@
 # Milky Mod
-Meteor Addon For minecraft 1.21.4
+给 meteor minecraft 1.21.5添加功能的一个mod（其他的自行翻译）
+我只是给这个mod做了1.21.5的支持
+Meteor Addon For minecraft 1.21.5
 
 ⚠️ This mod may include copy-pasted code from existing Meteor addons, including Jeff Mod, and others.
 
