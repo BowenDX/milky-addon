@@ -348,7 +348,6 @@ public class Cruise extends Module {
     }
 
     private boolean hasEligibleElytraAvailable() {
-        // 增加非空判断，防止运行时空指针异常
         if (mc.player == null) {
             return false;
         }

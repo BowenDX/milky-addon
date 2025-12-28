@@ -538,13 +538,8 @@ public class BoostedBounce extends Module {
         int syncId = mc.player.currentScreenHandler.syncId;
         int stateId = mc.player.currentScreenHandler.getRevision();
 
-        // 备选方案：创建空的变更槽位哈希（部分低版本MC允许空映射）
         Int2ObjectMap<ItemStackHash> changedSlotHashes = new Int2ObjectOpenHashMap<>();
-        // 若无需传递哈希信息，直接使用空映射即可，不影响物品交换功能
-        // （注：该方案优先保证功能可用，若需要哈希校验可忽略此方案）
-
-        // 备选：获取默认的ItemStackHash（若有静态常量）
-        ItemStackHash cursorHash = ItemStackHash.EMPTY; // 部分版本提供EMPTY常量，替代ItemStack.EMPTY转换
+        ItemStackHash cursorHash = ItemStackHash.EMPTY;
 
         ClickSlotC2SPacket swapPacket = new ClickSlotC2SPacket(
                 syncId,
@@ -752,7 +747,6 @@ public class BoostedBounce extends Module {
     }
 
     private void maybeSwapBackLeggings() {
-        // 核心修复：替换 armor.get(1) 为 EquipmentSlot.LEGS（护腿槽位）
         ItemStack legs = mc.player.getEquippedStack(EquipmentSlot.LEGS);
         boolean wearingGoldOrEmpty = legs == null || legs.isEmpty() || legs.isOf(Items.GOLDEN_LEGGINGS);
         if (!wearingGoldOrEmpty) return;

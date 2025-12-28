@@ -112,8 +112,8 @@ public class QuickCommand extends Module {
 
         ItemStack helmet = mc.player.getEquippedStack(EquipmentSlot.HEAD);
         ItemStack chest = mc.player.getEquippedStack(EquipmentSlot.CHEST);;
-        ItemStack legs = mc.player.getEquippedStack(EquipmentSlot.LEGS);    // 护腿（对应原 armor.get(1)）
-        ItemStack boots = mc.player.getEquippedStack(EquipmentSlot.FEET);   // 靴子（对应原 armor.get(0)）
+        ItemStack legs = mc.player.getEquippedStack(EquipmentSlot.LEGS);
+        ItemStack boots = mc.player.getEquippedStack(EquipmentSlot.FEET);
 
         BlockPos posUnder = mc.player.getBlockPos().down();
         Block blockUnder = mc.world.getBlockState(posUnder).getBlock();

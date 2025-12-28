@@ -233,14 +233,11 @@ public class ChestDeposit extends Module {
 
     private int countInInventory(Item item) {
         int total = 0;
-        // 核心修复：替换 mc.player.getInventory().main 为直接遍历 PlayerInventory（利用iterator()方法）
-        // 该方式等价于遍历主物品栏（main），无需访问私有字段
         for (ItemStack st : mc.player.getInventory()) {
             if (!st.isEmpty() && st.getItem() == item) {
                 total += st.getCount();
             }
         }
-        // 原逻辑：单独统计副手栏，保留不变（避免重复统计）
         ItemStack off = mc.player.getOffHandStack();
         if (!off.isEmpty() && off.getItem() == item) {
             total += off.getCount();

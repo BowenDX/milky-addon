@@ -309,20 +309,18 @@ public class Trade extends Module {
                 if (delayTicks-- <= 0) step = Step.ClickResult;
             }
             case ClickResult -> {
-                short resultSlot = 2; // 合成结果槽固定2
-                int revision = handler.getRevision(); // 版本号必须匹配不然服务器直接忽略
+                short resultSlot = 2;
+                int revision = handler.getRevision();
 
-                // changedStacks 对于QUICK_MOVE通常空 服务器自己处理
                 var changedStacks = new Int2ObjectOpenHashMap<ItemStackHash>();
 
-                // 光标栈 这里假设空 因为快速移结果时没拿东西
-                ItemStackHash carried = ItemStackHash.EMPTY; // 用EMPTY就行
+                ItemStackHash carried = ItemStackHash.EMPTY;
 
                 mc.getNetworkHandler().sendPacket(new ClickSlotC2SPacket(
                         handler.syncId,
                         revision,
                         resultSlot,
-                        (byte) 0, // button 对于QUICK_MOVE是0
+                        (byte) 0,
                         SlotActionType.QUICK_MOVE,
                         changedStacks,
                         carried
