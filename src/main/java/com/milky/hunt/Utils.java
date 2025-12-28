@@ -5,6 +5,7 @@ import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -27,7 +28,7 @@ public class Utils
 
         // cant use a rocket if not wearing an elytra
         int elytraSwapSlot = -1;
-        if (elytraRequired && !mc.player.getInventory().getArmorStack(2).isOf(Items.ELYTRA))
+        if (elytraRequired && !mc.player.getEquippedStack(EquipmentSlot.CHEST).isOf(Items.ELYTRA))
         {
             FindItemResult itemResult = InvUtils.findInHotbar(Items.ELYTRA);
             if (!itemResult.found()) {
