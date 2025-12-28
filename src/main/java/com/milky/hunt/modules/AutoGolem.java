@@ -162,7 +162,7 @@ public class AutoGolem extends Module {
         for (int i = 0; i < 9; i++) {
             Item item = mc.player.getInventory().getStack(i).getItem();
             if (item == Items.SNOW_BLOCK) {
-                mc.player.getInventory().selectedSlot = i;
+                mc.player.getInventory().setSelectedSlot(i);
                 break;
             }
         }
@@ -211,7 +211,7 @@ public class AutoGolem extends Module {
         for (int i = 0; i < 9; i++) {
             Item item = mc.player.getInventory().getStack(i).getItem();
             if (item == Items.IRON_BLOCK) {
-                mc.player.getInventory().selectedSlot = i;
+                mc.player.getInventory().setSelectedSlot(i);
                 break;
             }
         }
@@ -261,7 +261,7 @@ public class AutoGolem extends Module {
         for (int i = 0; i < 9; i++) {
             Item item = mc.player.getInventory().getStack(i).getItem();
             if (item == Items.SOUL_SAND) {
-                mc.player.getInventory().selectedSlot = i;
+                mc.player.getInventory().setSelectedSlot(i);
                 break;
             }
         }
@@ -374,8 +374,8 @@ public class AutoGolem extends Module {
             return;
         }
 
-        if (mc.player.getInventory().selectedSlot != slotToSelect) {
-            mc.player.getInventory().selectedSlot = slotToSelect;
+        if (mc.player.getInventory().getSelectedSlot() != slotToSelect) {
+            mc.player.getInventory().setSelectedSlot(slotToSelect);
             waitingForSlotSync = true;
             return;
         }
@@ -466,8 +466,8 @@ public class AutoGolem extends Module {
                 return;
             }
 
-            if (mc.player.getInventory().selectedSlot != slotToSelect) {
-                mc.player.getInventory().selectedSlot = slotToSelect;
+            if (mc.player.getInventory().getSelectedSlot() != slotToSelect) {
+                mc.player.getInventory().setSelectedSlot(slotToSelect);
                 waitingForSlotSync = true;
                 return;
             }
@@ -543,8 +543,8 @@ public class AutoGolem extends Module {
                 return;
             }
 
-            if (mc.player.getInventory().selectedSlot != slotToSelect) {
-                mc.player.getInventory().selectedSlot = slotToSelect;
+            if (mc.player.getInventory().getSelectedSlot() != slotToSelect) {
+                mc.player.getInventory().setSelectedSlot(slotToSelect);
                 waitingForSlotSync = true;
                 return;
             }
